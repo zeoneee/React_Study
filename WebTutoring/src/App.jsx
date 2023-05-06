@@ -8,7 +8,7 @@ function App() {
   const [name, setName] = useState('')
 
   function inputName(str){
-    setName(str)
+    setName(str) 
     setNames([...names, str])
   }
 
