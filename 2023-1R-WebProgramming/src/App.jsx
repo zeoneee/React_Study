@@ -13,7 +13,7 @@ function App() {
     return () => {
       console.log('unmount');
     }
-  });
+  }); 
 
   useEffect(() => {
     console.log('mount only');
@@ -39,7 +39,6 @@ function App() {
   //     }
   //   )
   // }
-
 
   return (
     <>
