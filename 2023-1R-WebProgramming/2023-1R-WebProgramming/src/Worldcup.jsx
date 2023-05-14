@@ -61,29 +61,44 @@ function Worldcup() {
     }, [round]);
 
     if (game.length === 1){
-        return <div>
-            <p>이상형 월드컵 우승</p>
-            <img src={game[0].src} /> <p>{game[0].name}</p>
+        return (
+        <div className='winner'>
+            <div className='title-area'>
+                <p>이상형 월드컵 우승</p>
+            </div>
+            <img src={game[0].src} /> <p id='winner-name'>{game[0].name}</p>
         </div>
+        )
     }
 
     if (game.length === 0 || round + 1 > game.length / 2) return <p>로딩중입니다</p>;
     
-    return <div>
-        <p>이상형 월드컵 {round +1} / {game.length/2} <b>{game.length === 2 ? "결승" : game.length + "강"}</b> </p>
-        <div style={{display: 'flex', flexDirection: 'row'}}>
-            <img src={game[round*2].src} onClick = { () => {
-                setNextGame((prev) => prev.concat(game[round*2]))
-                setRound(round => round + 1)
-            }}/>
-            <img src={game[round*2 + 1].src} onClick = { () => {
-                setNextGame((prev) => prev.concat(game[round*2 + 1]))
-                setRound(round => round + 1)
-            }}/>
-            {/* <img src={img1} onClick={() => alert('오동통통토로롱 농심 너구리')}></img>
-            <img src={img2} onClick={() => alert('콕코로로콕콕!')}></img> */}
+    return (
+    <div>
+        <div className='title-area'>
+            <p>이상형 월드컵 {round +1} / {game.length/2} <b>{game.length === 2 ? "결승" : game.length + "강"}</b> </p>
         </div>
+        <div className='content-area'>
+            <div className='left-area'>
+                <img src={game[round*2].src} onClick = { () => {
+                    setNextGame((prev) => prev.concat(game[round*2]))
+                    setRound(round => round + 1)
+                }}/>
+                <p>{game[round*2].name}</p>
+            </div>
+            <div className='right-area'>
+                <img src={game[round*2 + 1].src} onClick = { () => {
+                    setNextGame((prev) => prev.concat(game[round*2 + 1]))
+                    setRound(round => round + 1)
+                }}/>
+                <p>{game[round*2+1].name}</p>
+            </div>
+            
         </div>
+    </div>
+    )
 }
 
 export default Worldcup;
+
+// style={{display: 'flex', flexDirection: 'row'}}
