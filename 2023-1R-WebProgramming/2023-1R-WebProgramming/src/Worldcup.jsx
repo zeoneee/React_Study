@@ -43,6 +43,7 @@ function Worldcup() {
     const [game, setGame] = useState([]);
     const [round, setRound] = useState(0);
     const [nextGame, setNextGame] = useState([]);
+    const [selectedImg, setSelectedImg] = useState(null);
 
     useEffect(() => {
         setGame(candidate.map(c => {
@@ -59,6 +60,15 @@ function Worldcup() {
             setRound(0);    // round도 0값으로 
         }
     }, [round]);
+
+    useEffect(() => {
+        if (selectedImg) {
+            const timer = setTimeout(() => {
+                setSelectedImg(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [selectedImg]);
 
     if (game.length === 1){
         return (
@@ -79,26 +89,34 @@ function Worldcup() {
             <p>이상형 월드컵 {round +1} / {game.length/2} <b>{game.length === 2 ? "결승" : game.length + "강"}</b> </p>
         </div>
         <div className='content-area'>
-            <div className='left-area'>
-                <img src={game[round*2].src} onClick = { () => {
-                    setNextGame((prev) => prev.concat(game[round*2]))
-                    setRound(round => round + 1)
-                }}/>
-                <p>{game[round*2].name}</p>
-            </div>
-            <div className='right-area'>
-                <img src={game[round*2 + 1].src} onClick = { () => {
-                    setNextGame((prev) => prev.concat(game[round*2 + 1]))
-                    setRound(round => round + 1)
-                }}/>
-                <p>{game[round*2+1].name}</p>
-            </div>
-            
+            {selectedImg && (
+                <div className='winner'>
+                <img src={selectedImg} alt={selectedImg}/>
+                </div>
+            )}
+            {!selectedImg && (
+                <>
+                <div className='left-area'>
+                    <img src={game[round*2].src} onClick={() => {
+                    setSelectedImg(game[round*2].src);
+                    setNextGame((prev) => prev.concat(game[round*2]));
+                    setRound(round => round + 1);
+                    }}/> 
+                    <p>{game[round*2].name}</p>
+                </div>
+                <div className='right-area'>
+                    <img src={game[round*2 + 1].src} onClick={() => {
+                    setSelectedImg(game[round*2+1].src);
+                    setNextGame((prev) => prev.concat(game[round*2 + 1]));
+                    setRound(round => round + 1);
+                    }}/>
+                    <p>{game[round*2+1].name}</p>
+                </div>
+                </>
+            )}    
         </div>
     </div>
     )
 }
 
 export default Worldcup;
-
-// style={{display: 'flex', flexDirection: 'row'}}
