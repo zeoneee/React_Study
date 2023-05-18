@@ -44,8 +44,32 @@ function Worldcup() {
     const [round, setRound] = useState(0);
     const [nextGame, setNextGame] = useState([]);
     const [selectedImg, setSelectedImg] = useState(null);
+    const [stat, setStat] = useState({ // 새로운 변수 stat을 만듬
+        '콕콕콕 라면볶이' : 0,
+        '너구리' : 0,
+        '무파마' : 0,
+        '불닭볶음면' : 0,
+        '사리곰탕' : 0,
+        '새우탕' : 0,
+        '신라면' : 0,
+        '오징어짬뽕' : 0,
+        '육개장' : 0,
+        '진라면 매운맛':0,
+        '진라면 순한맛' : 0,
+        '짜파게티' : 0,
+        '짬뽕왕뚜껑' : 0,
+        '참깨라면' : 0,
+        '컵누들 매콤한맛' : 0,
+        '컵누들 우동맛' : 0
+    });
 
+    // 처음 worldcup 컴포넌트가 단 한 번 실행하는 함수
     useEffect(() => {
+        const 문자열 = localStorage.getItem("월드컵");  // local storage 활용하기
+        if (문자열 != null){
+            setStat(JSON.parse(문자열));
+        }
+
         setGame(candidate.map(c => {
             return {name: c.name, src: c.src, order: Math.random()}
         }).sort((l,r) => {
@@ -71,17 +95,69 @@ function Worldcup() {
     }, [selectedImg]);
 
     if (game.length === 1){
+        // setStat({...stat, 
+        //     [game[0].name]: stat[game[0].name]+1 
+        // })
+        localStorage.setItem("월드컵",JSON.stringify(stat)); // stat을 문자열로 바꾸는 코드가 JSON.stringify()  / JSON.parse는 문자열로 만든 dictionary 복구시키는 함수
         return (
         <div className='winner'>
             <div className='title-area'>
                 <p>이상형 월드컵 우승</p>
             </div>
             <img src={game[0].src} /> <p id='winner-name'>{game[0].name}</p>
+            <p>{stat[game[0].name]}번 승리</p>
+            {/* <table>
+                {game.flatMap(item => {
+                    const name = item.name;
+                    const srt = item.src;
+                    const win = stat[name];
+                    return <tr key={name}>
+                        <td><img src={src}/></td>
+                        <td>{name}</td>
+                        <td>{win}</td>
+                    </tr>
+                })}
+            </table> */}
+            <table>
+                {Object.keys(stat).map(name => {
+                    return <tr key={name}>
+                        <td>{name}</td>
+                        <td>{stat[name]}</td>
+                    </tr>
+                })}
+            </table>
         </div>
         )
     }
 
     if (game.length === 0 || round + 1 > game.length / 2) return <p>로딩중입니다</p>;
+    const left = round*2, right = round*2+1;
+    console.log(stat);
+
+    const leftfunction = () => {
+        setStat({...stat, // 저 라면 set을 일단 불러오고 뒤에 선택된 애들은 prevStat[game[left].name]+1의 값으로 대치됨
+            [game[left].name]: stat[game[left].name]+1 // '라면볶이' : 1 이렇게 저장됨
+        })
+        // setStat((prevStat) => { -> 이 함수를 위에 함수로 바꿈
+        //         prevStat[game[left].name] = prevStat[game[left].name]+1;
+        //         return prevStat;
+        //     }
+        // );
+        // alert(game[left].name + "를 선택하였습니다.");
+        // setSelectedImg(game[round*2].src);
+        setNextGame((prev) => prev.concat(game[left]));
+        setRound(round => round + 1);
+        }
+
+    const rightfunction = () => {
+        setStat({...stat, 
+            [game[right].name]: stat[game[left].name]+1
+        })
+        // alert(game[right].name + "를 선택하였습니다.");
+        // setSelectedImg(game[round*2+1].src);
+        setNextGame((prev) => prev.concat(game[right]));
+        setRound(round => round + 1);
+        }
     
     return (
     <div>
@@ -97,20 +173,12 @@ function Worldcup() {
             {!selectedImg && (
                 <>
                 <div className='left-area'>
-                    <img src={game[round*2].src} onClick={() => {
-                    setSelectedImg(game[round*2].src);
-                    setNextGame((prev) => prev.concat(game[round*2]));
-                    setRound(round => round + 1);
-                    }}/> 
-                    <p>{game[round*2].name}</p>
+                    <img src={game[left].src} onClick={leftfunction}/> 
+                    <p>{game[left].name}</p>
                 </div>
                 <div className='right-area'>
-                    <img src={game[round*2 + 1].src} onClick={() => {
-                    setSelectedImg(game[round*2+1].src);
-                    setNextGame((prev) => prev.concat(game[round*2 + 1]));
-                    setRound(round => round + 1);
-                    }}/>
-                    <p>{game[round*2+1].name}</p>
+                    <img src={game[right].src} onClick={rightfunction}/>
+                    <p>{game[right].name}</p>
                 </div>
                 </>
             )}    
@@ -120,3 +188,8 @@ function Worldcup() {
 }
 
 export default Worldcup;
+
+
+// 1. 표 내림차순으로 정렬하기
+// 2. 표 안에 숫자가 많은건 긴 막대기, 짧은거는 짧은 막대기로 시각적으로 예쁘게 만들기 (feat. 이상형 월드컵) : progress component
+//     or chart에다가 데이터 표현하기
