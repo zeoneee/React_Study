@@ -43,24 +43,16 @@ function Worldcup() {
     const [game, setGame] = useState([]);
     const [round, setRound] = useState(0);
     const [nextGame, setNextGame] = useState([]);
-    const [selectedImg, setSelectedImg] = useState(null);
-    const [stat, setStat] = useState({ // 새로운 변수 stat을 만듬
-        '콕콕콕 라면볶이' : 0,
-        '너구리' : 0,
-        '무파마' : 0,
-        '불닭볶음면' : 0,
-        '사리곰탕' : 0,
-        '새우탕' : 0,
-        '신라면' : 0,
-        '오징어짬뽕' : 0,
-        '육개장' : 0,
-        '진라면 매운맛':0,
-        '진라면 순한맛' : 0,
-        '짜파게티' : 0,
-        '짬뽕왕뚜껑' : 0,
-        '참깨라면' : 0,
-        '컵누들 매콤한맛' : 0,
-        '컵누들 우동맛' : 0
+    const [selectedImg, setSelectedImg] = useState(null); // 선택하면 3초 대기시키는 함수
+
+    const [stat, setStat] = useState(() => { // 새로운 변수 stat을 만듬
+        const initialState = {};
+    
+        candidate.forEach(item => {
+            initialState[item.name] = 0;
+        });
+    
+        return initialState;
     });
 
     // 처음 worldcup 컴포넌트가 단 한 번 실행하는 함수
@@ -98,14 +90,14 @@ function Worldcup() {
         // setStat({...stat, 
         //     [game[0].name]: stat[game[0].name]+1 
         // })
-        localStorage.setItem("월드컵",JSON.stringify(stat)); // stat을 문자열로 바꾸는 코드가 JSON.stringify()  / JSON.parse는 문자열로 만든 dictionary 복구시키는 함수
+        localStorage.setItem("2019112587",JSON.stringify(stat)); // stat을 문자열로 바꾸는 코드가 JSON.stringify()  / JSON.parse는 문자열로 만든 dictionary 복구시키는 함수
         return (
         <div className='winner'>
             <div className='title-area'>
                 <p>이상형 월드컵 우승</p>
             </div>
             <img src={game[0].src} /> <p id='winner-name'>{game[0].name}</p>
-            <p>{stat[game[0].name]}번 승리</p>
+            <p>승리 횟수 : {stat[game[0].name]}번 승리</p>
             {/* <table>
                 {game.flatMap(item => {
                     const name = item.name;
@@ -119,7 +111,9 @@ function Worldcup() {
                 })}
             </table> */}
             <table>
-                {Object.keys(stat).map(name => {
+                {Object.keys(stat)
+                .sort((a, b) => stat[b] - stat[a])
+                .map(name => {
                     return <tr key={name}>
                         <td>{name}</td>
                         <td>{stat[name]}</td>
@@ -143,7 +137,6 @@ function Worldcup() {
         //         return prevStat;
         //     }
         // );
-        // alert(game[left].name + "를 선택하였습니다.");
         // setSelectedImg(game[round*2].src);
         setNextGame((prev) => prev.concat(game[left]));
         setRound(round => round + 1);
@@ -153,7 +146,6 @@ function Worldcup() {
         setStat({...stat, 
             [game[right].name]: stat[game[left].name]+1
         })
-        // alert(game[right].name + "를 선택하였습니다.");
         // setSelectedImg(game[round*2+1].src);
         setNextGame((prev) => prev.concat(game[right]));
         setRound(round => round + 1);
@@ -188,8 +180,3 @@ function Worldcup() {
 }
 
 export default Worldcup;
-
-
-// 1. 표 내림차순으로 정렬하기
-// 2. 표 안에 숫자가 많은건 긴 막대기, 짧은거는 짧은 막대기로 시각적으로 예쁘게 만들기 (feat. 이상형 월드컵) : progress component
-//     or chart에다가 데이터 표현하기
