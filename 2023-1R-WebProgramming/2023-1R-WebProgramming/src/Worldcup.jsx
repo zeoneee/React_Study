@@ -17,6 +17,9 @@ import img14 from './assets/참깨라면.jpeg'
 import img15 from './assets/컵누들 매콤한맛.jpeg'
 import img16 from './assets/컵누들 우동맛.jpeg'
 import { useState, useReducer, useEffect } from 'react'
+import { useRecoilState } from 'recoil'
+import { EpisodeState } from './store/episode'
+import {Winner} from './Winner'
 
 
 function reducer(state, action){
@@ -132,7 +135,11 @@ function Worldcup() {
 
 
     // 처음 worldcup 컴포넌트가 단 한 번 실행하는 함수
+    
+    const [epi, setEpi] = useRecoilState(EpisodeState);
+
     useEffect(() => {
+        setEpi(1);
         const 문자열 = localStorage.getItem("월드컵");  // local storage 활용하기
         const 통계정보 = !문자열 ? JSON.parse(문자열) : {};
         const shuffledCandidate = candidate.map(c => {
@@ -143,7 +150,13 @@ function Worldcup() {
         dispatch({type: "startGame", value: {game: shuffledCandidate, state: 통계정보}});
     }, []);
 
-    useEffect(() => {
+    useEffect(()=> {
+        if(epi===1) document.title = '첫 번째 게임';
+        else if(epi===2) document.title = "두 번째 게임";
+        else if(epi>3) document.title = "게임 이용 시간이 3시간 지났습니다";
+    })
+
+    useEffect(() => { 
         if(state.game.length > 1 && round + 1 > state.game.length /2) { // 강이 바뀔 때 16->8->4->2->1
             setGame(nextGame); // nextGame에 select된 애들이 저장되고 있었으니까, 저장된 애들로 다시 setGame
             setNextGame([]); // nextGame은 다시 빈배열로
@@ -151,52 +164,34 @@ function Worldcup() {
         }
     }, [state.round]);
 
-    useEffect(() => {
-        if (selectedImg) {
-            const timer = setTimeout(() => {
-                setSelectedImg(null);
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [selectedImg]);
+    // useEffect(() => {
+    //     if (selectedImg) {
+    //         const timer = setTimeout(() => {
+    //             setSelectedImg(null);
+    //         }, 3000);
+    //         return () => clearTimeout(timer);
+    //     }
+    // }, [selectedImg]);
 
     if (state.game.length === 1){
-        // setStat({...stat, 
-        //     [game[0].name]: stat[game[0].name]+1 
-        // })
-        localStorage.setItem("2019112587",JSON.stringify(state.stat)); // stat을 문자열로 바꾸는 코드가 JSON.stringify()  / JSON.parse는 문자열로 만든 dictionary 복구시키는 함수
-        return (
-        <div className='winner'>
-            <div className='title-area'>
-                <p>이상형 월드컵 우승</p>
-            </div>
-            <img src={game[0].src} /> <p id='winner-name'>{state.game[0].name}</p>
-            <p>승리 횟수 : {state.stat[game[0].name]}번 승리</p>
+        return <Winner useumg={state.game[0]} stat={state.stat}>
             <table>
                 {Object.keys(stat)
-                .sort((a, b) => state.stat[b] - state.stat[a])
+                .sort((a, b) => stat[b] - stat[a])
                 .map(name => {
                     return <tr key={name}>
                         <td>{name}</td>
-                        <td>{state.stat[name]}</td>
+                        <td>{stat[name]}</td>
                     </tr>
                 })}
             </table>
-        </div>
-        )
+        </Winner>
     }
 
     if (state.game.length === 0 || round + 1 > state.game.length / 2) return <p>로딩중입니다</p>;
     const left = state.round*2, right = state.round*2+1;
     console.log(state.stat);
 
-    const leftfunction = () => {
-        dispatch({type: "click", value: left});
-    }
-
-    const rightfunction = () => {
-        dispatch({type: "click", value: right})
-    }
     
     return (
     <div>
@@ -204,12 +199,12 @@ function Worldcup() {
             <p>이상형 월드컵 {state.round +1} / {state.game.length/2} <b>{state.game.length === 2 ? "결승" : state.game.length + "강"}</b> </p>
         </div>
         <div className='content-area'>
-            {selectedImg && (
+            {/* {selectedImg && (
                 <div className='winner'>
                 <img src={selectedImg} alt={selectedImg}/>
                 </div>
-            )}
-            {!selectedImg && (
+            )} */}
+            {(
                 <>
                 <div className='left-area'>
                     <img src={state.game[left].src} onClick={() => {dispatch({type:"click", value: left})}}/> 
@@ -230,5 +225,5 @@ export default Worldcup;
 
 
 // 조별과제 진행사항 중 
-// useState, useReducer 사용해서 정리
+// useState, useReducer 사용하고 보고서 ㄱ ㄱ
 // 어떤식으로 routing 될 것인지 주소 체계 필요
