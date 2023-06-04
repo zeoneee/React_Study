@@ -19,32 +19,24 @@ import img16 from './assets/컵누들 우동맛.jp
 import { useState, useReducer, useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { EpisodeState } from './store/episode'
-import {Winner} from './Winner'
+import Winner from './Winner'
 
 
 function reducer(state, action){
     if(action.type === "startGame"){
         if (action.value.stat){
-            return{
-                // round: state.round,
-                // nextGame: state.nextGame,
-                // stat: state.stat,
-                ...state, // 위에 3문장을 한 문장으로. 앞에 것들은 모두 state를 유지하겠다
-                game: action.value.game, // game값만 바ㅣ는 것
-                stat: action.value.stat
-            }
+            return{ ...state, game: action.value.game, stat: action.value.stat};
         } else {
-            return {...state, game: action.value}
+            return {...state, game: action.value.game}
         }
     } else if (action.type ==="click"){
-
         // game의 마지막 경기인지 아닌지 확인
-        if(state.game.length > 1 && state.round + 1 > state.game.length / 2){
+        if(state.game.length > 1 && state.round + 1 >= state.game.length / 2){
             return {
                 ...state,
                 round: 0,
                 nextGame: [],
-                game: state.nextGame.concatt(state.game[action.value]),
+                game: state.nextGame.concat(state.game[action.value]),
                 stat: {
                     ...state.stat,
                     [state.game[action.value].name]: state.stat[state.game[action.value].name] +1
@@ -53,21 +45,17 @@ function reducer(state, action){
         }
         else{ // 마지막 경기가 아닐 때
             return{
+                ...state,
                 round: state.round + 1,
                 nextGame: state.nextGame.concat(state.game[action.value]),
                 stat:{ ...state.stat,
-                    [state.game[action.value].name]: state.stat[game[action.value].name]+1
+                    [state.game[action.value].name]: state.stat[state.game[action.value].name]+1
                 }
-                // 아래 내용을 위로
-                // setStat({...stat, // 저 라면 set을 일단 불러오고 뒤에 선택된 애들은 prevStat[game[left].name]+1의 값으로 대치됨
-                // [game[left].name]: stat[game[left].name]+1 // '라면볶이' : 1 이렇게 저장됨
-                // })
-                // // setSelectedImg(game[round*2].src);
-                // setNextGame((prev) => prev.concat(game[left]));
-                // setRound(round => round + 1);
+            };
         }
     }
-}}
+    return state;
+}
 
 
 function Worldcup() {
@@ -90,54 +78,35 @@ function Worldcup() {
         {name: '컵누들 매콤한맛', src: img15},
         {name: '컵누들 우동맛', src: img16}
     ]
+
     const initialState = {
-        '콕콕콕 라면볶이' : 0,
-        '너구리' : 0,
-        '무파마' : 0,
-        '불닭볶음면' : 0,
-        '사리곰탕' : 0,
-        '새우탕' : 0,
-        '신라면' : 0,
-        '오징어짬뽕' : 0,
-        '육개장' : 0,
-        '진라면 매운맛':0,
-        '진라면 순한맛' : 0,
-        '짜파게티' : 0,
-        '짬뽕왕뚜껑' : 0,
-        '참깨라면' : 0,
-        '컵누들 매콤한맛' : 0,
-        '컵누들 우동맛' : 0
+        game: [],
+        round: 0,
+        nextGame: [],
+        stat: {
+            '콕콕콕 라면볶이' : 0,
+            '너구리' : 0,
+            '무파마' : 0,
+            '불닭볶음면' : 0,
+            '사리곰탕' : 0,
+            '새우탕' : 0,
+            '신라면' : 0,
+            '오징어짬뽕' : 0,
+            '육개장' : 0,
+            '진라면 매운맛':0,
+            '진라면 순한맛' : 0,
+            '짜파게티' : 0,
+            '짬뽕왕뚜껑' : 0,
+            '참깨라면' : 0,
+            '컵누들 매콤한맛' : 0,
+            '컵누들 우동맛' : 0
+        }
     };
 
-
-    // const [state, dispatch] = useReducer(() => {}, {
-    //     game: [],
-    //     round: 0,
-    //     nextGame: [],
-    //     stat : {
-            
-    //     }
-    // })
     const [state, dispatch] = useReducer(reducer, initialState);
-    // const [game, setGame] = useState([]);
-    // const [round, setRound] = useState(0);
-    // const [nextGame, setNextGame] = useState([]);
-    // const [selectedImg, setSelectedImg] = useState(null); // 선택하면 3초 대기시키는 함수
-    // const [stat, setStat] = useState(() => { // 새로운 변수 stat을 만듬
-    //     const initialState = {};
-    
-    //     candidate.forEach(item => {
-    //         initialState[item.name] = 0;
-    //     });
-    
-    //     return initialState;
-    // });
-
-
-    // 처음 worldcup 컴포넌트가 단 한 번 실행하는 함수
-    
     const [epi, setEpi] = useRecoilState(EpisodeState);
 
+    // 처음 worldcup 컴포넌트가 단 한 번 실행하는 함수
     useEffect(() => {
         setEpi(1);
         const 문자열 = localStorage.getItem("월드컵");  // local storage 활용하기
@@ -156,41 +125,27 @@ function Worldcup() {
         else if(epi>3) document.title = "게임 이용 시간이 3시간 지났습니다";
     })
 
-    useEffect(() => { 
-        if(state.game.length > 1 && round + 1 > state.game.length /2) { // 강이 바뀔 때 16->8->4->2->1
-            setGame(nextGame); // nextGame에 select된 애들이 저장되고 있었으니까, 저장된 애들로 다시 setGame
-            setNextGame([]); // nextGame은 다시 빈배열로
-            setRound(0);    // round도 0값으로 
-        }
-    }, [state.round]);
-
-    // useEffect(() => {
-    //     if (selectedImg) {
-    //         const timer = setTimeout(() => {
-    //             setSelectedImg(null);
-    //         }, 3000);
-    //         return () => clearTimeout(timer);
-    //     }
-    // }, [selectedImg]);
-
     if (state.game.length === 1){
-        return <Winner useumg={state.game[0]} stat={state.stat}>
+        return (
+        <Winner useung={state.game[0]} stat={state.stat}>
             <table>
-                {Object.keys(stat)
-                .sort((a, b) => stat[b] - stat[a])
+                {Object.keys(state.stat)
+                .sort((a, b) => state.stat[b] - state.stat[a])
                 .map(name => {
                     return <tr key={name}>
                         <td>{name}</td>
-                        <td>{stat[name]}</td>
+                        <td>{state.stat[name]}</td>
                     </tr>
                 })}
             </table>
         </Winner>
+    )
     }
 
-    if (state.game.length === 0 || round + 1 > state.game.length / 2) return <p>로딩중입니다</p>;
+    
+    if (state.game.length === 0 || state.round + 1 > state.game.length / 2) return <p>로딩중입니다</p>;
     const left = state.round*2, right = state.round*2+1;
-    console.log(state.stat);
+    console.log(state);
 
     
     return (
@@ -199,13 +154,6 @@ function Worldcup() {
             <p>이상형 월드컵 {state.round +1} / {state.game.length/2} <b>{state.game.length === 2 ? "결승" : state.game.length + "강"}</b> </p>
         </div>
         <div className='content-area'>
-            {/* {selectedImg && (
-                <div className='winner'>
-                <img src={selectedImg} alt={selectedImg}/>
-                </div>
-            )} */}
-            {(
-                <>
                 <div className='left-area'>
                     <img src={state.game[left].src} onClick={() => {dispatch({type:"click", value: left})}}/> 
                     <p>{state.game[left].name}</p>
@@ -213,17 +161,10 @@ function Worldcup() {
                 <div className='right-area'>
                     <img src={state.game[right].src} onClick={() => {dispatch({type:"click", value: right})}}/>
                     <p>{state.game[right].name}</p>
-                </div>
-                </>
-            )}    
+                </div>    
         </div>
     </div>
     )
 }
 
 export default Worldcup;
-
-
-// 조별과제 진행사항 중 
-// useState, useReducer 사용하고 보고서 ㄱ ㄱ
-// 어떤식으로 routing 될 것인지 주소 체계 필요
