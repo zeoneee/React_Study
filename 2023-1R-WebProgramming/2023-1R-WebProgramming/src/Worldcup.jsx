@@ -128,7 +128,7 @@ function Worldcup() {
     if (state.game.length === 1){
         return (
         <Winner useung={state.game[0]} stat={state.stat}>
-            <table>
+            <table> {/*children 객체*/}
                 {Object.keys(state.stat)
                 .sort((a, b) => state.stat[b] - state.stat[a])
                 .map(name => {
@@ -137,7 +137,7 @@ function Worldcup() {
                         <td>{state.stat[name]}</td>
                     </tr>
                 })}
-            </table>
+            </table> 
         </Winner>
     )
     }
