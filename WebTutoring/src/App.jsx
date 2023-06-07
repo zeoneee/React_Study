@@ -1,39 +1,57 @@
-import { useState } from 'react'
-import './App.css'
-import Diary from './Diary'
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import DiaryList from "./DiaryList";
+import DiaryDetail from "./DiaryDetail";
+import Diary from "./Diary";
+import TodoApp from "./TodoApp";
+import ParentComp from "./ChildComp";
+import Counter from "./Counter";
 
-function App() {
-  // const [names, setNames] = useState(['tom','merry'])
-  const [names, setNames] = useState([{name: 'sam', age:23}, {name:'merry', age:3}])
-  const [name, setName] = useState('')
 
-  function inputName(str){
-    setName(str) 
-    setNames([...names, str])
-  }
-
-  const title = "hi"
-  const cont = "Nice to meet you"
-
-  // 사용자가 input을 받게 하고 그 값이 만약 "tom"과 같다면
-  // <p>{name}</p>
-  // react에서 변경되는 값은 상태 관리를 따로 해줘야함. 
-
+function App(){
   return (
-    <div className="App" style={styles.container}>
-      <input id="inp" onChange={e=> inputName(e.target.value)} value={name}/>
-      {names.map(e=><Diary title={e.name} contents={e.age} />)}
-      {/* {names.map(e=> <p>{e}</p>)} */}
-      {/* <input onChange={e=>inputName(e.target.value)} value={name}/> 
-      {name ==="tom" ? <p>반가워요</p> : <p>{name}</p>} */}
+    <BrowserRouter>
+      <Header/>
+      <Routes>
+        <Route exact path="/" element={<Home/>}/>
+        <Route exact path="/person" element={<Person/>}/>
+        <Route exact path="/diary" element={<DiaryList/>}/>
+        <Route exact path="/diary/:diaryNum" element={<DiaryDetail/>}/>
+        <Route exact path="/dtitle" element={<Diary/>}/>
+        <Route exact path="/todo" element={<TodoApp/>}/>
+        <Route exact path="/par" element={<ParentComp/>}/>
+        <Route exact path="/cnt" element={<Counter/>}/>
+        <Route exact path="*" element={<NotFound/>}/>
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+function Home(){
+  return <h2>홈페이지</h2>;
+}
+
+function Person(){
+  return <h2>마이 페이지</h2>;
+}
+
+function NotFound(){
+  return <h1>페이지가 없습니다</h1>;
+}
+
+function Header(){
+  return (
+    <div style={{flex: "true", flexDirection: "row", backgroundColor: "grey"}}>
+      <div style={{width: 100, display: "inline-block"}}>
+        <Link to="/">Home</Link>
+      </div>
+      <div style={{width: 100, display: "inline-block"}}>
+        <Link to="/person">Mypage</Link>
+      </div>
+      <div style={{width: 100, display: "inline-block"}}>
+        <Link to ="/diary">Diary</Link>
+      </div>
     </div>
   )
 }
 
-const styles = {
-  container:{
-    flex: true
-  }
-}
-
-export default App
+export default App;
